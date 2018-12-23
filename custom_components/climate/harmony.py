@@ -1,8 +1,10 @@
+"""
+Support for Harmony Hub devices as a Climate Component.
+
+https://github.com/so3n/HA_harmony_climate_component
+"""
 import asyncio
 import logging
-import binascii
-import socket
-import os.path
 import voluptuous as vol
 import homeassistant.helpers.config_validation as cv
 
@@ -64,7 +66,8 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
     vol.Optional(CONF_DEFAULT_OPERATION_FROM_IDLE): cv.string
 })
 
-async def async_setup_platform(hass, config, async_add_devices, discovery_info=None):
+async def async_setup_platform(hass, config, async_add_entities,
+                               discovery_info=None):
     """Set up the Harmony Hub Climate platform."""
     name = config.get(CONF_NAME)
     ip_addr = config.get(CONF_HOST)
@@ -89,15 +92,22 @@ async def async_setup_platform(hass, config, async_add_devices, discovery_info=N
 
     if harmony_device is None:
         _LOGGER.error("Failed to connect to Harmony Hub")
+        return
+    else:
+        _LOGGER.debug("Connected to Harmony Hub Climate Component: %s at %s:%s",
+                        name, ip_addr, port)
     
-    async_add_devices([
-        HarmonyIRClimate(hass, name, harmony_device, device_id, min_temp, max_temp, target_temp, target_temp_step, temp_sensor_entity_id, operation_list, fan_list, default_operation, default_fan_mode, default_operation_from_idle)
+    async_add_entities([
+        HarmonyIRClimate(hass, name, harmony_device, device_id, min_temp, max_temp, 
+                         target_temp, target_temp_step, temp_sensor_entity_id, operation_list, 
+                         fan_list, default_operation, default_fan_mode, default_operation_from_idle)
     ])
 
 class HarmonyIRClimate(ClimateDevice, RestoreEntity):
 
-    def __init__(self, hass, name, harmony_device, device_id, min_temp, max_temp, target_temp, target_temp_step, temp_sensor_entity_id, operation_list, fan_list, default_operation, default_fan_mode, default_operation_from_idle):
-                 
+    def __init__(self, hass, name, harmony_device, device_id, min_temp, max_temp, 
+                 target_temp, target_temp_step, temp_sensor_entity_id, operation_list, 
+                 fan_list, default_operation, default_fan_mode, default_operation_from_idle):
         """Initialize Harmony IR Climate device."""
         self.hass = hass
         self._name = name
@@ -123,27 +133,20 @@ class HarmonyIRClimate(ClimateDevice, RestoreEntity):
         self._device_id = device_id
         
         if temp_sensor_entity_id:
-            async_track_state_change(
-                hass, temp_sensor_entity_id, self._async_temp_sensor_changed)
-                
+            async_track_state_change(hass, temp_sensor_entity_id, self._async_temp_sensor_changed)
             sensor_state = hass.states.get(temp_sensor_entity_id)    
-                
             if sensor_state:
                 self._async_update_current_temp(sensor_state)
     
     
     def send_ir(self):     
+        """Send command to harmony device"""
         mode = self._current_operation.capitalize()
         fan = self._current_fan_mode.capitalize()
         temp = str(int(self._target_temperature))
+        command = 'Off' if mode in ("Off", "Idle") else mode + fan + temp
         
-        if mode == 'Off':
-            command = 'Off'
-        elif mode == 'Idle':
-            command = 'Off'
-        else: 
-            command = mode + fan + temp
-
+        _LOGGER.debug(f"Sending command {command} to device {self._device_id}")
         self._harmony_device.send_command(self._device_id, command)
     
     async def _async_temp_sensor_changed(self, entity_id, old_state, new_state):
