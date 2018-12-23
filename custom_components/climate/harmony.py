@@ -8,9 +8,13 @@ import logging
 import voluptuous as vol
 import homeassistant.helpers.config_validation as cv
 
-from homeassistant.components.climate import (ClimateDevice, PLATFORM_SCHEMA, STATE_OFF, STATE_IDLE, STATE_HEAT, STATE_COOL, STATE_AUTO,
-ATTR_OPERATION_MODE, SUPPORT_OPERATION_MODE, SUPPORT_TARGET_TEMPERATURE, SUPPORT_FAN_MODE)
-from homeassistant.const import (ATTR_UNIT_OF_MEASUREMENT, ATTR_TEMPERATURE, CONF_NAME, CONF_HOST, CONF_PORT, CONF_CUSTOMIZE)
+from homeassistant.components.climate import (
+    ClimateDevice, PLATFORM_SCHEMA, STATE_OFF, STATE_IDLE, STATE_HEAT, 
+    STATE_COOL, STATE_AUTO, ATTR_OPERATION_MODE, SUPPORT_OPERATION_MODE, 
+    SUPPORT_TARGET_TEMPERATURE, SUPPORT_FAN_MODE)
+from homeassistant.const import (
+    ATTR_UNIT_OF_MEASUREMENT, ATTR_TEMPERATURE, CONF_NAME, CONF_HOST, 
+    CONF_PORT, CONF_CUSTOMIZE)
 from homeassistant.helpers.event import (async_track_state_change)
 from homeassistant.core import callback
 from homeassistant.helpers.restore_state import RestoreEntity
@@ -133,7 +137,8 @@ class HarmonyIRClimate(ClimateDevice, RestoreEntity):
         self._device_id = device_id
         
         if temp_sensor_entity_id:
-            async_track_state_change(hass, temp_sensor_entity_id, self._async_temp_sensor_changed)
+            async_track_state_change(hass, temp_sensor_entity_id, 
+                                     self._async_temp_sensor_changed)
             sensor_state = hass.states.get(temp_sensor_entity_id)    
             if sensor_state:
                 self._async_update_current_temp(sensor_state)
@@ -248,7 +253,8 @@ class HarmonyIRClimate(ClimateDevice, RestoreEntity):
         if kwargs.get(ATTR_TEMPERATURE) is not None:
             self._target_temperature = kwargs.get(ATTR_TEMPERATURE)
             
-            if not (self._current_operation.lower() == 'off' or self._current_operation.lower() == 'idle'):
+            if not (self._current_operation.lower() == 'off' 
+                    or self._current_operation.lower() == 'idle'):
                 self.send_ir()
             elif self._default_operation_from_idle is not None:
                 self.set_operation_mode(self._default_operation_from_idle)
@@ -260,7 +266,8 @@ class HarmonyIRClimate(ClimateDevice, RestoreEntity):
         """Set new target temperature."""
         self._current_fan_mode = fan
         
-        if not (self._current_operation.lower() == 'off' or self._current_operation.lower() == 'idle'):
+        if not (self._current_operation.lower() == 'off'
+                or self._current_operation.lower() == 'idle'):
             self.send_ir()
             
         self.schedule_update_ha_state()
