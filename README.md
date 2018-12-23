@@ -10,7 +10,7 @@ Download or clone this project, and place the custom_components folder and its c
 #### Configuration in configuration.yaml:
 **name** (Optional): Name of climate component<br />
 **host** (Required): The IP address of the Harmony Hub device<br />
-**port** (Optional): The Harmony device’s port (default: 8088)<br />
+**port** (Optional): The Harmony device’s port (default: 5222)<br />
 **device_id** (Required): The ID Harmony has assigned to your air conditioner unit (see below for how to obtain)<br />
 **min_temp** (Optional): Set minimum set point available (default: 16)<br />
 **max_temp** (Optional): Set maximum set point available (default: 30)<br />
