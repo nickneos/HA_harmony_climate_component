@@ -145,21 +145,22 @@ class HarmonyIRClimate(ClimateDevice, RestoreEntity):
         self._target_temperature = target_temp
         self._target_temperature_step = target_temp_step
         self._unit_of_measurement = hass.config.units.temperature_unit
-        
+
         self._current_temperature = 0
         self._temp_sensor_entity_id = temp_sensor_entity_id
 
         self._current_operation = default_operation
+        self._last_operation = default_operation
         self._current_fan_mode = default_fan_mode
-        
+
         self._operation_list = operation_list
         self._fan_list = fan_list
-        
+
         self._default_operation_from_idle = default_operation_from_idle
-                
+
         self._harmony_device = harmony_device
         self._device_id = device_id
-        
+
         if temp_sensor_entity_id:
             async_track_state_change(hass, temp_sensor_entity_id, 
                                      self._async_temp_sensor_changed)
@@ -255,6 +256,11 @@ class HarmonyIRClimate(ClimateDevice, RestoreEntity):
         return self._current_operation
 
     @property
+    def last_operation(self):
+        """Return the last non-idle operation ie. heat, cool."""
+        return self._last_operation
+
+    @property
     def operation_list(self):
         """Return the list of available operation modes."""
         return self._operation_list
@@ -301,10 +307,19 @@ class HarmonyIRClimate(ClimateDevice, RestoreEntity):
     def set_operation_mode(self, operation_mode):
         """Set new target temperature."""
         self._current_operation = operation_mode
-
+        if not (self._current_operation.lower() == 'off' or self._current_operation.lower() == 'idle'):
+            self._last_operation = self._current_operation
         self.send_ir()
         self.schedule_update_ha_state()
-        
+
+    async def async_turn_on(self):
+        """Turn thermostat on."""
+        await self.async_set_operation_mode(self.last_operation)
+
+    async def async_turn_off(self):
+        """Turn thermostat off."""
+        await self.async_set_operation_mode(STATE_OFF)
+
     async def async_added_to_hass(self):
         """Run when entity about to be added."""
         await super().async_added_to_hass()
