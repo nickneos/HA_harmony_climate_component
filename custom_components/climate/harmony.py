@@ -153,9 +153,9 @@ class HarmonyIRClimate(ClimateDevice, RestoreEntity):
         self._last_operation = default_operation
         self._current_fan_mode = default_fan_mode
         
-        if self._last_operation.lower() in ('off', 'idle')
+        if self._last_operation.lower() in ('off', 'idle'):
             for op in operation_list:
-                if (op.lower() not in ('off', 'idle'):
+                if op.lower() not in ('off', 'idle'):
                     self._last_operation = op
                     break
         
