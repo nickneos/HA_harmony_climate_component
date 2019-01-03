@@ -152,7 +152,13 @@ class HarmonyIRClimate(ClimateDevice, RestoreEntity):
         self._current_operation = default_operation
         self._last_operation = default_operation
         self._current_fan_mode = default_fan_mode
-
+        
+        if self._last_operation.lower() in ('off', 'idle')
+            for op in operation_list:
+                if (op.lower() not in ('off', 'idle'):
+                    self._last_operation = op
+                    break
+        
         self._operation_list = operation_list
         self._fan_list = fan_list
 
@@ -307,7 +313,8 @@ class HarmonyIRClimate(ClimateDevice, RestoreEntity):
     def set_operation_mode(self, operation_mode):
         """Set new target temperature."""
         self._current_operation = operation_mode
-        if not (self._current_operation.lower() == 'off' or self._current_operation.lower() == 'idle'):
+        if not (self._current_operation.lower() == 'off' 
+                or self._current_operation.lower() == 'idle'):
             self._last_operation = self._current_operation
         self.send_ir()
         self.schedule_update_ha_state()
