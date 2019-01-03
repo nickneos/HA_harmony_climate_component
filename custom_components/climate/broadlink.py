@@ -134,6 +134,13 @@ class BroadlinkIRClimate(ClimateDevice, RestoreEntity):
 
         self._current_operation = default_operation
         self._current_fan_mode = default_fan_mode
+
+        self._last_operation = default_operation
+        if self._last_operation.lower() in ('off', 'idle'):
+            for op in operation_list:
+                if op.lower() not in ('off', 'idle'):
+                    self._last_operation = op
+                    break
         
         self._operation_list = operation_list
         self._fan_list = fan_list
@@ -255,6 +262,11 @@ class BroadlinkIRClimate(ClimateDevice, RestoreEntity):
         return self._current_operation
 
     @property
+    def last_operation(self):
+        """Return the last non-idle operation ie. heat, cool."""
+        return self._last_operation
+
+    @property
     def operation_list(self):
         """Return the list of available operation modes."""
         return self._operation_list
@@ -299,10 +311,19 @@ class BroadlinkIRClimate(ClimateDevice, RestoreEntity):
     def set_operation_mode(self, operation_mode):
         """Set new target temperature."""
         self._current_operation = operation_mode
-
+        if not (self._current_operation.lower() == 'off' or self._current_operation.lower() == 'idle'):
+            self._last_operation = self._current_operation
         self.send_ir()
         self.schedule_update_ha_state()
-        
+
+    async def async_turn_on(self):
+        """Turn thermostat on."""
+        await self.async_set_operation_mode(self.last_operation)
+
+    async def async_turn_off(self):
+        """Turn thermostat off."""
+        await self.async_set_operation_mode(STATE_OFF)
+
     async def async_added_to_hass(self):
         """Run when entity about to be added."""
         await super().async_added_to_hass()
