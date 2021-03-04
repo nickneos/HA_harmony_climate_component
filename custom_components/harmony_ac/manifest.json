@@ -4,5 +4,6 @@
   "documentation": "https://github.com/so3n/HA_harmony_climate_component",
   "dependencies": [],
   "codeowners": [],
-  "requirements": []
+  "requirements": [],
+  "version": "0.2.0"
 }
