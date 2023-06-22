@@ -267,7 +267,7 @@ class HarmonyIRClimate(ClimateEntity, RestoreEntity):
         if not self._hvac_mode.lower() == HVAC_MODE_OFF:
             await self.async_send_command()
 
-        await self.async_update_ha_state()
+        await self.async_write_ha_state()
 
     async def async_set_hvac_mode(self, hvac_mode):
         """Set operation mode."""        
@@ -277,7 +277,7 @@ class HarmonyIRClimate(ClimateEntity, RestoreEntity):
             self._last_on_operation = hvac_mode
 
         await self.async_send_command()
-        await self.async_update_ha_state()
+        await self.async_write_ha_state()
 
     async def async_set_fan_mode(self, fan_mode):
         """Set fan mode."""
@@ -285,7 +285,7 @@ class HarmonyIRClimate(ClimateEntity, RestoreEntity):
         
         if not self._hvac_mode.lower() == HVAC_MODE_OFF:
             await self.async_send_command()
-        await self.async_update_ha_state()
+        await self.async_write_ha_state()
 
     async def async_turn_off(self):
         """Turn off."""
@@ -336,7 +336,7 @@ class HarmonyIRClimate(ClimateEntity, RestoreEntity):
             return
 
         self._async_update_temp(new_state)
-        await self.async_update_ha_state()
+        await self.async_write_ha_state()
         
     @callback
     def _async_update_temp(self, state):
