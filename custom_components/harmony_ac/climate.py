@@ -181,11 +181,6 @@ class HarmonyIRClimate(ClimateEntity, RestoreEntity):
         return HVACMode.OFF
 
     @property
-    def temperature_unit(self):
-        """Return the unit of measurement."""
-        return self._unit_of_measurement
-
-    @property
     def min_temp(self):
         """Return the polling state."""
         return self._min_temp
@@ -195,11 +190,39 @@ class HarmonyIRClimate(ClimateEntity, RestoreEntity):
         """Return the polling state."""
         return self._max_temp
 
+    # HA 2026.11 new temperature property names
     @property
-    def target_temperature(self):
+    def native_current_temperature(self):
+        """Return the current temperature."""
+        return self._current_temperature
+
+    @property
+    def native_target_temperature(self):
         """Return the temperature we try to reach."""
         return self._target_temperature
         
+    @property
+    def native_temperature_unit(self):
+        """Return the unit of measurement."""
+        return self._unit_of_measurement
+
+    # Also provide legacy property names for HA < 2026.11 
+    if not hasattr(ClimateEntity, "native_temperature_unit"):
+        @property
+        def current_temperature(self):
+            """Return the current temperature."""
+            return self._current_temperature
+
+        @property
+        def target_temperature(self):
+            """Return the temperature we try to reach."""
+            return self._target_temperature
+
+        @property
+        def temperature_unit(self):
+            """Return the unit of measurement."""
+            return self._unit_of_measurement
+
     @property
     def target_temperature_step(self):
         """Return the supported step of target temperature."""
@@ -229,11 +252,6 @@ class HarmonyIRClimate(ClimateEntity, RestoreEntity):
     def fan_mode(self):
         """Return the fan setting."""
         return self._current_fan_mode
-
-    @property
-    def current_temperature(self):
-        """Return the current temperature."""
-        return self._current_temperature
 
     @property
     def supported_features(self):
